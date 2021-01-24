@@ -13,6 +13,7 @@
     "coverage": "npm run build && hardhat coverage --temp artifacts --network coverage",
     "chain": "hardhat node",
     "deploy": "hardhat run scripts/deploy.ts",
+    "upgrade": "hardhat run scripts/upgrade.ts",
     "format": "prettier --ignore-path .gitignore --write './**/*.{ts,sol,json,md,yml}'",
     "lint": "yarn lint:solhint && yarn lint:prettier",
     "lint:solhint": "hardhat check",
