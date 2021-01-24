@@ -1,7 +1,7 @@
 {
   "extends": ["solhint:recommended"],
   "rules": {
-    "avoid-throw": false,
+    "avoid-throw": "off",
     "avoid-suicide": "error",
     "avoid-sha3": "warn",
     "quotes": "single",
