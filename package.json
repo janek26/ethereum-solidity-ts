@@ -14,7 +14,9 @@
     "chain": "hardhat node",
     "deploy": "hardhat run scripts/deploy.ts",
     "format": "prettier --ignore-path .gitignore --write './**/*.{ts,sol,json,md,yml}'",
-    "lint": "hardhat check"
+    "lint": "yarn lint:solhint && yarn lint:prettier",
+    "lint:solhint": "hardhat check",
+    "lint:prettier": "prettier --ignore-path .gitignore --check './**/*.{ts,sol,json,md,yml}'"
   },
   "repository": {
     "type": "git",
