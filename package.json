@@ -36,7 +36,7 @@
   },
   "lint-staged": {
     "*.{ts,sol,json,md,yml}": "prettier --write",
-    "*.sol": "yarn lint"
+    "*.sol": "hardhat check"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.1",
