@@ -1,0 +1,8 @@
+node_modules/
+cache/
+build/
+typechain/
+artifacts/
+abi/
+coverage*
+.env
