@@ -2,7 +2,6 @@
 pragma solidity ^0.7.6;
 
 import '@openzeppelin/contracts-upgradeable/proxy/Initializable.sol';
-
 import 'hardhat/console.sol';
 
 contract Counter is Initializable {
