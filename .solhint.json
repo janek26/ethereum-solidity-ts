@@ -6,6 +6,6 @@
     "avoid-sha3": "warn",
     "quotes": "single",
     "indent": "2",
-    "compiler-version": ["error", "^0.8.0"]
+    "compiler-version": ["error", "^0.7.6"]
   }
 }
