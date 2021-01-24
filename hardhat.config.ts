@@ -1,8 +1,3 @@
-import { config as dotEnvConfig } from 'dotenv'
-dotEnvConfig()
-
-import { HardhatUserConfig } from 'hardhat/types'
-
 import '@nomiclabs/hardhat-waffle'
 import 'hardhat-typechain'
 import '@nomiclabs/hardhat-etherscan'
@@ -12,6 +7,11 @@ import 'hardhat-gas-reporter'
 import 'hardhat-abi-exporter'
 import '@nomiclabs/hardhat-solhint'
 import '@openzeppelin/hardhat-upgrades'
+
+import { config as dotEnvConfig } from 'dotenv'
+import { HardhatUserConfig } from 'hardhat/types'
+
+dotEnvConfig()
 
 const INFURA_API_KEY = process.env.INFURA_API_KEY || ''
 const RINKEBY_PRIVATE_KEY =

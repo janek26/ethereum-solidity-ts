@@ -1,7 +1,8 @@
-import { ethers, upgrades } from 'hardhat'
 import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
-import { Counter__factory, Counter } from '../typechain'
+import { ethers, upgrades } from 'hardhat'
+
+import { Counter, Counter__factory } from '../typechain'
 
 chai.use(solidity)
 const { expect } = chai

@@ -1,4 +1,5 @@
 import { ethers, upgrades } from 'hardhat'
+
 import main from './lib/main'
 
 const { BOX_ADDRESS = '' } = process.env
