@@ -1,12 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.6.8;
+pragma solidity ^0.7.3;
+
+import '@openzeppelin/contracts-upgradeable/proxy/Initializable.sol';
 
 import 'hardhat/console.sol';
 
-contract Counter {
-  uint256 count = 0;
+contract Counter is Initializable {
+  uint256 public count;
 
   event CountedTo(uint256 number);
+
+  function initialize(uint256 _count) public initializer {
+    count = _count;
+  }
 
   function getCount() public view returns (uint256) {
     return count;

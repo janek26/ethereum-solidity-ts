@@ -10,6 +10,8 @@ import 'solidity-coverage'
 import 'hardhat-watcher'
 import 'hardhat-gas-reporter'
 import 'hardhat-abi-exporter'
+import '@nomiclabs/hardhat-solhint'
+import '@openzeppelin/hardhat-upgrades'
 
 const INFURA_API_KEY = process.env.INFURA_API_KEY || ''
 const RINKEBY_PRIVATE_KEY =

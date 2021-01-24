@@ -1,9 +1,10 @@
 import { ethers, upgrades } from 'hardhat'
 import main from './lib/main'
 
+const { BOX_ADDRESS = '' } = process.env
+
 main(async () => {
   const Counter = await ethers.getContractFactory('Counter')
-  const counter = await upgrades.deployProxy(Counter, [0])
-  await counter.deployed()
-  console.log('Box deployed to:', counter.address)
+  const box = await upgrades.upgradeProxy(BOX_ADDRESS, Counter)
+  console.log('Box upgraded')
 })
