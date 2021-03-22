@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.7.6;
+// solhint-disable-next-line compiler-version
+pragma abicoder v2;
 
 import '@openzeppelin/contracts-upgradeable/proxy/Initializable.sol';
 import 'hardhat/console.sol';
