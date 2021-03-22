@@ -14,7 +14,6 @@ contract GuardianVault is OwnableUpgradeable {
 
   event GuardianAdded(address guardian);
   event GuardianRemoved(address guardian);
-  event GuardianChecked(address guardian);
 
   function _isGuardian(address _suspect) private view returns (bool) {
     uint256 _guardianCreateTime = guardians[_suspect];
@@ -28,11 +27,22 @@ contract GuardianVault is OwnableUpgradeable {
     return false;
   }
 
-  /**
-   * @notice Throws if the sender is not a guardian.
-   */
+  // /**
+  //  * @notice Throws if the sender is not a guardian.
+  //  */
   // modifier guardianOnly {
   //   require(_isGuardian(_msgSender()), 'Sender not authorized');
+  //   _;
+  // }
+
+  // /**
+  //  * @notice Throws if the sender is not a guardian or the owner.
+  //  */
+  // modifier guardianOrOwnerOnly {
+  //   require(
+  //     _msgSender() == owner() || _isGuardian(_msgSender()),
+  //     'Sender not authorized'
+  //   );
   //   _;
   // }
 
@@ -42,10 +52,11 @@ contract GuardianVault is OwnableUpgradeable {
     requiredBond = 0 ether;
 
     for (uint256 i = 0; i < _guardians.length; i++) {
-      address newGuardian = _guardians[i];
-      require(newGuardian != address(0), 'Cant use ZeroAddress as Guardian');
+      address _guardian = _guardians[i];
+      require(_guardian != address(0), 'Cant use ZeroAddress as Guardian');
 
-      guardians[newGuardian] = 1; // From the beginning = immediatly active
+      guardians[_guardian] = 1; // From the beginning = immediatly active
+      emit GuardianAdded(_guardian);
     }
   }
 

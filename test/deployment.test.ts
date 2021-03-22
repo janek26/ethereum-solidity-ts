@@ -9,7 +9,7 @@ import { GuardianVault, GuardianVault__factory } from '../typechain'
 chai.use(solidity)
 const { expect } = chai
 
-describe('Upgrades', function () {
+describe('Deploy and upgrade', function () {
   it('works', async () => {
     const [owner, _addr1, addr2] = await ethers.getSigners()
 
@@ -45,6 +45,8 @@ describe('Upgrades', function () {
     )
     expect(isAddr2GuardianUpgraded).to.equal(true)
   })
+
+  it.skip('emits Guardian added event', async () => {})
 
   it('crashed when you try to set ZeroAddress as Guardian', async () => {
     const [owner] = await ethers.getSigners()
