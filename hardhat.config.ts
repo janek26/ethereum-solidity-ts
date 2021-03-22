@@ -1,8 +1,3 @@
-import { config as dotEnvConfig } from 'dotenv'
-dotEnvConfig()
-
-import { HardhatUserConfig } from 'hardhat/types'
-
 import '@nomiclabs/hardhat-waffle'
 import 'hardhat-typechain'
 import '@nomiclabs/hardhat-etherscan'
@@ -10,6 +5,13 @@ import 'solidity-coverage'
 import 'hardhat-watcher'
 import 'hardhat-gas-reporter'
 import 'hardhat-abi-exporter'
+import '@nomiclabs/hardhat-solhint'
+import '@openzeppelin/hardhat-upgrades'
+
+import { config as dotEnvConfig } from 'dotenv'
+import { HardhatUserConfig } from 'hardhat/types'
+
+dotEnvConfig()
 
 const INFURA_API_KEY = process.env.INFURA_API_KEY || ''
 const RINKEBY_PRIVATE_KEY =
@@ -21,7 +23,7 @@ const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY
 const config: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
   solidity: {
-    compilers: [{ version: '0.6.8', settings: {} }],
+    compilers: [{ version: '0.7.6', settings: {} }],
   },
   networks: {
     hardhat: {},

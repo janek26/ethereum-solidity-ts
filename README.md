@@ -54,7 +54,13 @@ Notes:
 
 Create/modify network config in `hardhat.config.ts` and add API key and private key, then run:
 
-`yarn deploy --network rinkeby`
+`yarn deploy:init --network rinkeby`
+
+### Upgrade Contract
+
+To upgrade your contract, set `BOX_ADDRESS` in `.env` to your proxy contract, then run:
+
+`yarn deploy:upgrade --network rinkeby`
 
 ### Verify on Etherscan
 
