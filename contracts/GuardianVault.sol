@@ -29,17 +29,24 @@ contract GuardianVault is OwnableUpgradeable {
   }
 
   /**
-   * @notice Throws if the sender is not an authorised module.
+   * @notice Throws if the sender is not a guardian.
    */
   // modifier guardianOnly {
   //   require(_isGuardian(_msgSender()), 'Sender not authorized');
   //   _;
   // }
 
-  function initialize() public initializer {
+  function initialize(address[] memory _guardians) public initializer {
     __Ownable_init();
     timelockPeriod = 1 days;
-    requiredBond = 1 ether;
+    requiredBond = 0 ether;
+
+    for (uint256 i = 0; i < _guardians.length; i++) {
+      address newGuardian = _guardians[i];
+      require(newGuardian != address(0), 'Cant use ZeroAddress as Guardian');
+
+      guardians[newGuardian] = 1; // From the beginning = immediatly active
+    }
   }
 
   function setTimelockPeriod(uint256 _timelockPeriod) public onlyOwner {

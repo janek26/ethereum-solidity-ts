@@ -1,3 +1,5 @@
+import { rejects } from 'assert'
+
 import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers, upgrades } from 'hardhat'
@@ -9,7 +11,7 @@ const { expect } = chai
 
 describe('Upgrades', function () {
   it('works', async () => {
-    const [owner] = await ethers.getSigners()
+    const [owner, _addr1, addr2] = await ethers.getSigners()
 
     const GuardianVault = (await ethers.getContractFactory(
       'GuardianVault',
@@ -20,17 +22,15 @@ describe('Upgrades', function () {
       owner,
     )) as GuardianVault__factory
 
-    const instance = (await upgrades.deployProxy(
-      GuardianVault,
-      [],
-    )) as GuardianVault
+    const instance = (await upgrades.deployProxy(GuardianVault, [
+      [addr2.address],
+    ])) as GuardianVault
 
     expect(instance.address).to.properAddress
-    // await instance.countUp()
-    // const val1 = await instance.getCount()
-    // expect(val1).to.eq(1)
     const ownerContract = await instance.owner()
     expect(ownerContract).to.equal(owner.address)
+    const isAddr2Guardian = await instance['isGuardian(address)'](addr2.address)
+    expect(isAddr2Guardian).to.equal(true)
 
     const upgraded = (await upgrades.upgradeProxy(
       instance.address,
@@ -38,10 +38,25 @@ describe('Upgrades', function () {
     )) as GuardianVault
 
     expect(upgraded.address).to.properAddress
-    // await upgraded.countDown()
-    // const val2 = await upgraded.getCount()
-    // expect(val2).to.eq(0)
     const ownerUpgradede = await upgraded.owner()
     expect(ownerUpgradede).to.equal(owner.address)
+    const isAddr2GuardianUpgraded = await upgraded['isGuardian(address)'](
+      addr2.address,
+    )
+    expect(isAddr2GuardianUpgraded).to.equal(true)
+  })
+
+  it('crashed when you try to set ZeroAddress as Guardian', async () => {
+    const [owner] = await ethers.getSigners()
+
+    const GuardianVault = (await ethers.getContractFactory(
+      'GuardianVault',
+      owner,
+    )) as GuardianVault__factory
+
+    await rejects(
+      upgrades.deployProxy(GuardianVault, [[ethers.constants.AddressZero]]),
+      'Cant use ZeroAddress as Guardian',
+    )
   })
 })

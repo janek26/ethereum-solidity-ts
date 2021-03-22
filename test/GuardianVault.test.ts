@@ -21,10 +21,9 @@ describe('GuardianVault', () => {
       owner,
     )) as GuardianVault__factory
 
-    guardianVault = (await upgrades.deployProxy(
-      GuardianVault,
+    guardianVault = (await upgrades.deployProxy(GuardianVault, [
       [],
-    )) as GuardianVault
+    ])) as GuardianVault
 
     expect(guardianVault.address).to.properAddress
   })
@@ -54,10 +53,10 @@ describe('GuardianVault', () => {
       })
     })
     describe('Bond', () => {
-      it('initializes with a bond of 1 ether', async () => {
+      it('initializes with a bond of 0 ether', async () => {
         const bond = await guardianVault.getRequiredBond()
-        const ONE_ETHER = ethers.utils.parseEther('1')
-        expect(bond).to.eq(ONE_ETHER)
+        const ZERO_ETHER = ethers.utils.parseEther('0')
+        expect(bond).to.eq(ZERO_ETHER)
       })
       it('allows to set bond by owner', async () => {
         const TWO_ETHER = ethers.utils.parseEther('2')
