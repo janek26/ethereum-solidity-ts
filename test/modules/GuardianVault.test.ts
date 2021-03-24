@@ -4,8 +4,8 @@ import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers, upgrades } from 'hardhat'
 
-import { GuardianVault, GuardianVault__factory } from '../typechain'
-import { waitSecondsOnChain } from './lib/network'
+import { GuardianVault, GuardianVault__factory } from '../../typechain'
+import { waitSecondsOnChain } from '../lib/network'
 
 chai.use(solidity)
 const { expect } = chai

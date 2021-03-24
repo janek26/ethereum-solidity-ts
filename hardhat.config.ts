@@ -3,6 +3,7 @@ import 'hardhat-typechain'
 import '@nomiclabs/hardhat-etherscan'
 import 'solidity-coverage'
 import 'hardhat-watcher'
+import 'hardhat-tracer'
 import 'hardhat-gas-reporter'
 import 'hardhat-abi-exporter'
 import '@nomiclabs/hardhat-solhint'
@@ -37,7 +38,9 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {},
-    localhost: {},
+    localhost: {
+      url: 'http://127.0.0.1:7545',
+    },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [RINKEBY_PRIVATE_KEY],

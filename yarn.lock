@@ -672,6 +672,11 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-3.3.0.tgz#a536c6ff107d21319490e6cb699e555a3edcf6ea"
   integrity sha512-kJeNuKauR4xH52Yo3GdXXAOW4CWyWdm7VXcJFe63G8TRb45ISSnkt/gXwUa8zzEYqokQrwNZYoH/iGYfUlp6wA==
 
+"@openzeppelin/contracts@^3.4.1":
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.4.1.tgz#03c891fec7f93be0ae44ed74e57a122a38732ce7"
+  integrity sha512-cUriqMauq1ylzP2TxePNdPqkwI7Le3Annh4K9rrpvKfSBB/bdW+Iu1ihBaTIABTAAJ85LmKL5SSPPL9ry8d1gQ==
+
 "@openzeppelin/hardhat-upgrades@^1.5.0":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@openzeppelin/hardhat-upgrades/-/hardhat-upgrades-1.5.0.tgz#580143b8f0c68ca123a45874f2aa83f51e71b6ff"
@@ -4700,6 +4705,13 @@ hardhat-gas-reporter@^1.0.4:
   dependencies:
     eth-gas-reporter "^0.2.20"
     sha1 "^1.1.1"
+
+hardhat-tracer@^1.0.0-alpha.3:
+  version "1.0.0-alpha.3"
+  resolved "https://registry.yarnpkg.com/hardhat-tracer/-/hardhat-tracer-1.0.0-alpha.3.tgz#c35f87c1b2cd34dfdb1267995a7f5f779ed5114f"
+  integrity sha512-AwqD0kfcZuhal7E8OSnqLJ8TCKMyNG3ULv8PxTdwxmT1BBsDMy9sdKpYhOTJUAlGOOQLyZRm6KlZdaSzhF09jg==
+  dependencies:
+    ethers "^5.0.24"
 
 hardhat-typechain@^0.3.4:
   version "0.3.4"

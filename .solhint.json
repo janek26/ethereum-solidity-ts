@@ -1,11 +1,15 @@
 {
   "extends": ["solhint:recommended"],
+  "plugins": ["prettier"],
   "rules": {
+    "prettier/prettier": "error",
     "avoid-throw": "off",
     "avoid-suicide": "error",
     "avoid-sha3": "warn",
     "quotes": "single",
     "indent": "2",
+    "state-visibility": "off",
+    "func-visibility": "off",
     "compiler-version": ["error", "^0.7.6"]
   }
 }
