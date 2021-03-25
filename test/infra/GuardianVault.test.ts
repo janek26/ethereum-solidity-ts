@@ -240,6 +240,7 @@ describe('InfraGuardianVault', () => {
       it('works with timelock', async () => {
         const [ward, g1, g2] = await ethers.getSigners()
         await guardianVault.register(ward.address, [g1.address], [])
+        await guardianVault.setTimelockPeriod(ward.address, 100)
 
         // set addr1 as guardian by owner
         // default timelock is 1 day
@@ -253,6 +254,14 @@ describe('InfraGuardianVault', () => {
           .connect(g2)
           ['isGuardian(address)'](ward.address)
         expect(isG2Guardian).to.eq(false)
+
+        await waitSecondsOnChain(60)
+
+        // let G2 check if he is a guardian
+        const isG2GuardianAfter = await guardianVault
+          .connect(g2)
+          ['isGuardian(address)'](ward.address)
+        expect(isG2GuardianAfter).to.eq(true)
       })
 
       it('emits event when adding', async () => {
@@ -358,6 +367,220 @@ describe('InfraGuardianVault', () => {
           notOwner.removeGuardian(ward.address, g1.address),
           'Sender not trusted',
         )
+      })
+    })
+  })
+  describe('Trustees', () => {
+    it('ZeroAddress is not a trustee', async () => {
+      const isTrusted = await guardianVault['isTrusted(address)'](
+        ethers.constants.AddressZero,
+      )
+      expect(isTrusted).to.eq(false)
+    })
+    describe('Read', () => {
+      it('allows trustee to read own state on existing ward', async () => {
+        const [ward, t1, g1] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address], [t1.address])
+
+        const isTrusted = await guardianVault
+          .connect(t1)
+          ['isTrusted(address)'](ward.address)
+        expect(isTrusted).to.eq(true)
+      })
+      it('allows others to read trustee state on existing ward', async () => {
+        const [ward, t1, g1, nobody] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address], [t1.address])
+
+        const isTrusted = await guardianVault
+          .connect(nobody)
+          ['isTrusted(address,address)'](ward.address, t1.address)
+        expect(isTrusted).to.eq(true)
+      })
+      it('returns false on read with non existent trustee on existing ward', async () => {
+        const [ward, g1, t1, nobody] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address], [t1.address])
+
+        const isTrusted = await guardianVault['isTrusted(address,address)'](
+          ward.address,
+          nobody.address,
+        )
+        expect(isTrusted).to.eq(false)
+      })
+      it('returns false on read on non-existing ward', async () => {
+        const [_self, nobody] = await ethers.getSigners()
+
+        const isTrusted = await guardianVault['isTrusted(address)'](
+          nobody.address,
+        )
+        expect(isTrusted).to.eq(false)
+      })
+      it('returns true on read by self', async () => {
+        const [self] = await ethers.getSigners()
+
+        const isTrusted = await guardianVault['isTrusted(address)'](
+          self.address,
+        )
+        expect(isTrusted).to.eq(true)
+      })
+    })
+    describe('Add', () => {
+      it('adds trustee when done by the owner', async () => {
+        const [ward, g1, t1] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address], [])
+
+        // set timelock to 0; so we can check the result fast
+        await guardianVault.setTimelockPeriod(ward.address, 0)
+
+        await guardianVault.addTrustee(ward.address, t1.address)
+        await waitSecondsOnChain(60)
+
+        const isT1TrustedByOwner = await guardianVault[
+          'isTrusted(address,address)'
+        ](ward.address, t1.address)
+        expect(isT1TrustedByOwner).to.eq(true)
+
+        const isT1TrustedByT1 = await guardianVault
+          .connect(t1)
+          ['isTrusted(address)'](ward.address)
+        expect(isT1TrustedByT1).to.eq(true)
+      })
+
+      it('works with timelock', async () => {
+        const [ward, g1, t1] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address], [])
+        await guardianVault.setTimelockPeriod(ward.address, 100)
+
+        // set addr1 as guardian by owner
+        // default timelock is 1 day
+        await guardianVault.addTrustee(ward.address, t1.address)
+
+        // wait some time <timelock
+        await waitSecondsOnChain(60)
+
+        // let T1 check if he is a guardian
+        const isT1Trusted = await guardianVault
+          .connect(t1)
+          ['isTrusted(address)'](ward.address)
+        expect(isT1Trusted).to.eq(false)
+
+        await waitSecondsOnChain(60)
+
+        // let T1 check if he is a guardian
+        const isT1TrustedAfter = await guardianVault
+          .connect(t1)
+          ['isTrusted(address)'](ward.address)
+        expect(isT1TrustedAfter).to.eq(true)
+      })
+
+      it('emits event when adding', async () => {
+        const [ward, g1, t1] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address], [])
+        const tx = await guardianVault.addTrustee(ward.address, t1.address)
+        const receipt = await tx.wait()
+        const event = receipt.events?.find((e) => e.event === 'TrusteeAdded')
+        expect(event).to.not.be.undefined
+        expect(event?.args).to.deep.eq([ward.address, t1.address])
+      })
+
+      it('rejects attempt to add ZeroAddress as Trustee', async () => {
+        const [ward, g1] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address], [])
+
+        await rejects(
+          guardianVault.addTrustee(ward.address, ethers.constants.AddressZero),
+          'Cant use ZeroAddress as Trustee',
+        )
+      })
+
+      it('rejects attempt to add already added address as Trustee', async () => {
+        const [ward, g1, t1] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address], [])
+
+        await guardianVault.addTrustee(ward.address, t1.address)
+        await rejects(
+          guardianVault.addTrustee(ward.address, t1.address),
+          'Trustee is already added',
+        )
+      })
+
+      it('rejects attempt to add Trustee by not owner', async () => {
+        const [ward, g1, t1] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address], [])
+
+        const notOwner = guardianVault.connect(t1)
+        await rejects(
+          notOwner.addTrustee(ward.address, t1.address),
+          'revert Ownable: caller is not the owner',
+        )
+      })
+    })
+    describe('Remove', () => {
+      async function addTrusteeNow(ward: string, address: string) {
+        const timelockPeriod = await guardianVault.getTimelockPeriod(ward)
+        await guardianVault.addTrustee(ward, address)
+        // add 10s delay to make sure
+        await waitSecondsOnChain(timelockPeriod.toNumber() + 10)
+      }
+      it('removes an existing guardian correctly', async () => {
+        const [ward, g1, t1] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address], [])
+
+        await addTrusteeNow(ward.address, t1.address)
+        const isT1TrustedByOwnerBefore = await guardianVault[
+          'isTrusted(address,address)'
+        ](ward.address, t1.address)
+        expect(isT1TrustedByOwnerBefore).to.eq(true)
+
+        await guardianVault.removeTrustee(ward.address, t1.address)
+        const isT1TrustedByOwnerAfter = await guardianVault[
+          'isTrusted(address,address)'
+        ](ward.address, t1.address)
+        expect(isT1TrustedByOwnerAfter).to.eq(false)
+      })
+      it('emits event when removing', async () => {
+        const [ward, g1, t1] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address], [])
+
+        await addTrusteeNow(ward.address, t1.address)
+        const tx = await guardianVault.removeTrustee(ward.address, t1.address)
+        const receipt = await tx.wait()
+        const event = receipt.events?.find((e) => e.event === 'TrusteeRemoved')
+        expect(event).to.not.be.undefined
+        expect(event?.args).to.deep.eq([ward.address, t1.address])
+      })
+      it('rejects when removing non existent guardian', async () => {
+        const [ward, g1, t1] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address], [])
+
+        await rejects(
+          guardianVault.removeTrustee(ward.address, t1.address),
+          'Trustee does not exist',
+        )
+      })
+      it('rejects attempt to remove Guardian by not owner', async () => {
+        const [ward, g1] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address], [])
+
+        const notOwner = guardianVault.connect(g1)
+        await rejects(
+          notOwner.removeTrustee(ward.address, g1.address),
+          'Sender not trusted',
+        )
+      })
+    })
+    describe('can run function with access restrictions', () => {
+      it('can set timelock', async () => {
+        const ZERO = 0
+        const [ward, g1, t1] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address], [t1.address])
+
+        // set timelock to 0
+        await guardianVault.connect(t1).setTimelockPeriod(ward.address, ZERO)
+
+        // check timelock value by owner
+        const lockPeriod = await guardianVault.getTimelockPeriod(ward.address)
+
+        expect(lockPeriod).to.eq(ZERO)
       })
     })
   })
