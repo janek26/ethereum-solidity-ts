@@ -131,44 +131,6 @@ describe('InfraGuardianVault', () => {
         )
       })
     })
-    describe('Bond', () => {
-      it('detects when a user doesnt exist', async () => {
-        const [owner] = await ethers.getSigners()
-        await rejects(
-          guardianVault.getRequiredBond(owner.address),
-          'Ward doesnt exist',
-        )
-      })
-      it('allows get of required bond', async () => {
-        const ZERO_ETHER = ethers.utils.parseEther('0')
-        const [owner, g1] = await ethers.getSigners()
-        await guardianVault.register(owner.address, [g1.address], [])
-
-        const requiredBond = await guardianVault.getRequiredBond(owner.address)
-
-        expect(requiredBond).to.eq(ZERO_ETHER)
-      })
-      it('allows to set required bond by owner', async () => {
-        const ONE_ETHER = ethers.utils.parseEther('1')
-        const [owner, g1] = await ethers.getSigners()
-        await guardianVault.register(owner.address, [g1.address], [])
-
-        await guardianVault.setRequiredBond(owner.address, ONE_ETHER)
-        const requiredBond = await guardianVault.getRequiredBond(owner.address)
-
-        expect(requiredBond).to.eq(ONE_ETHER)
-      })
-      it('rejects to set required bond by somebody else', async () => {
-        const ONE_ETHER = ethers.utils.parseEther('1')
-        const [owner, g1] = await ethers.getSigners()
-        await guardianVault.register(owner.address, [g1.address], [])
-
-        await rejects(
-          guardianVault.connect(g1).setRequiredBond(owner.address, ONE_ETHER),
-          'Sender not authorized',
-        )
-      })
-    })
   })
   describe('Guardians', () => {
     it('ZeroAddress is not a guardian', async () => {
@@ -581,6 +543,87 @@ describe('InfraGuardianVault', () => {
         const lockPeriod = await guardianVault.getTimelockPeriod(ward.address)
 
         expect(lockPeriod).to.eq(ZERO)
+      })
+    })
+  })
+  describe('Consensus', () => {
+    describe('Read', () => {
+      it('defaults to false', async () => {
+        const [ward, g1] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address], [])
+
+        const ACTION_HASH = ethers.utils.keccak256(ethers.utils.randomBytes(8))
+
+        const isApproved = await guardianVault.isApproved(
+          ward.address,
+          ACTION_HASH,
+        )
+        expect(isApproved).to.eq(false)
+      })
+      it('is true if 1/1', async () => {
+        const [ward, g1] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address], [])
+
+        const ACTION_HASH = ethers.utils.keccak256(ethers.utils.randomBytes(8))
+
+        await guardianVault.approve(g1.address, ward.address, ACTION_HASH)
+
+        const isApproved = await guardianVault.isApproved(
+          ward.address,
+          ACTION_HASH,
+        )
+        expect(isApproved).to.eq(true)
+      })
+      it('is true if 1/2', async () => {
+        const [ward, g1, g2] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address, g2.address], [])
+
+        const ACTION_HASH = ethers.utils.keccak256(ethers.utils.randomBytes(8))
+
+        await guardianVault.approve(g1.address, ward.address, ACTION_HASH)
+
+        const isApproved = await guardianVault.isApproved(
+          ward.address,
+          ACTION_HASH,
+        )
+        expect(isApproved).to.eq(true)
+      })
+      it('is false if 1/3', async () => {
+        const [ward, g1, g2, g3] = await ethers.getSigners()
+        await guardianVault.register(
+          ward.address,
+          [g1.address, g2.address, g3.address],
+          [],
+        )
+
+        const ACTION_HASH = ethers.utils.keccak256(ethers.utils.randomBytes(8))
+
+        await guardianVault.approve(g1.address, ward.address, ACTION_HASH)
+
+        const isApproved = await guardianVault.isApproved(
+          ward.address,
+          ACTION_HASH,
+        )
+        expect(isApproved).to.eq(false)
+      })
+      it('is true if 2/3', async () => {
+        const [ward, g1, g2, g3] = await ethers.getSigners()
+        await guardianVault.register(
+          ward.address,
+          [g1.address, g2.address, g3.address],
+          [],
+        )
+
+        const ACTION_HASH = ethers.utils.keccak256(ethers.utils.randomBytes(8))
+
+        await guardianVault.approve(g1.address, ward.address, ACTION_HASH)
+        await guardianVault.approve(g2.address, ward.address, ACTION_HASH)
+
+        const isApproved = await guardianVault.isApproved(
+          ward.address,
+          ACTION_HASH,
+        )
+        expect(isApproved).to.eq(true)
       })
     })
   })

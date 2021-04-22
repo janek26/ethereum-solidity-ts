@@ -4,6 +4,7 @@ pragma solidity ^0.7.6;
 pragma abicoder v2;
 
 import '@openzeppelin/contracts/utils/Context.sol';
+import '@openzeppelin/contracts/math/SafeMath.sol';
 import 'hardhat/console.sol';
 
 contract InfraGuardianVault is Context {
@@ -12,11 +13,10 @@ contract InfraGuardianVault is Context {
   struct WardDetails {
     WardStates state;
     uint256 timelockPeriod;
-    uint256 requiredBond;
     uint256 guardiansLength;
     mapping(address => uint256) guardians;
     mapping(address => uint256) trustedModules;
-    mapping(bytes32 => uint256) approvedActions;
+    mapping(bytes32 => address[]) approvedActions;
   }
 
   mapping(address => WardDetails) public wards;
@@ -201,7 +201,6 @@ contract InfraGuardianVault is Context {
     require(_guardians.length > 0, 'Ward needs at least one Guardian');
 
     _ward.state = WardStates.Active;
-    _ward.requiredBond = 0;
     _ward.timelockPeriod = 1 days;
     _ward.guardiansLength = _guardians.length;
     for (uint256 i = 0; i < _guardians.length; i++) {
@@ -224,20 +223,6 @@ contract InfraGuardianVault is Context {
   function getTimelockPeriod(address _suspect) public view returns (uint256) {
     WardDetails storage _ward = _getWard(_suspect);
     return _ward.timelockPeriod;
-  }
-
-  function setRequiredBond(address _suspect, uint256 _requiredBond)
-    public
-    onlyTrusted(_suspect)
-    onlyAllowWardState(_suspect, WardStates.Active)
-  {
-    WardDetails storage _ward = _getWard(_suspect);
-    _ward.requiredBond = _requiredBond;
-  }
-
-  function getRequiredBond(address _suspect) public view returns (uint256) {
-    WardDetails storage _ward = _getWard(_suspect);
-    return _ward.requiredBond;
   }
 
   function addGuardian(address _wardAddress, address _guardian)
@@ -307,5 +292,43 @@ contract InfraGuardianVault is Context {
   function getGuardianLength(address _suspect) public view returns (uint256) {
     WardDetails storage _ward = _getWard(_suspect);
     return _ward.guardiansLength;
+  }
+
+  function _hasConsensus(
+    address _wardAddress,
+    address[] storage _approvals,
+    uint256 _total
+  ) internal view returns (bool) {
+    uint256 _validApprovals = 0;
+
+    for (uint256 i = 0; i < _approvals.length; i++) {
+      if (_isGuardian(_wardAddress, _approvals[i], _now())) {
+        _validApprovals++;
+      }
+    }
+
+    return (SafeMath.sub(_total, _validApprovals) <= _validApprovals);
+  }
+
+  function isApproved(address _wardAddress, bytes32 _hash)
+    public
+    view
+    onlyAllowWardState(_wardAddress, WardStates.Active)
+    returns (bool)
+  {
+    WardDetails storage _ward = _getWard(_wardAddress);
+    uint256 _total = _ward.guardiansLength;
+    address[] storage _approvals = _ward.approvedActions[_hash];
+
+    return _hasConsensus(_wardAddress, _approvals, _total);
+  }
+
+  function approve(
+    address _guardianAddress,
+    address _wardAddress,
+    bytes32 _hash
+  ) public onlyAllowWardState(_wardAddress, WardStates.Active) {
+    WardDetails storage _ward = _getWard(_wardAddress);
+    _ward.approvedActions[_hash].push(_guardianAddress);
   }
 }

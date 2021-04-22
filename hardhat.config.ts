@@ -6,6 +6,7 @@ import 'hardhat-watcher'
 import 'hardhat-tracer'
 import 'hardhat-gas-reporter'
 import 'hardhat-abi-exporter'
+import 'hardhat-log-remover'
 import '@nomiclabs/hardhat-solhint'
 import '@openzeppelin/hardhat-upgrades'
 
@@ -44,6 +45,23 @@ const config: HardhatUserConfig = {
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [RINKEBY_PRIVATE_KEY],
+    },
+    cevm: {
+      url: `https://rpc-evm.portal.dev.cardano.org/`,
+      accounts: [RINKEBY_PRIVATE_KEY],
+    },
+    kevm: {
+      url: `https://rpc-kevm.portal.dev.cardano.org/`,
+      accounts: [RINKEBY_PRIVATE_KEY],
+    },
+    moonbase: {
+      url: `https://rpc.testnet.moonbeam.network`,
+      chainId: 1287,
+      accounts: [RINKEBY_PRIVATE_KEY],
+    },
+    moondev: {
+      url: `http://127.0.0.1:9933`,
+      chainId: 1281,
     },
     coverage: {
       url: 'http://127.0.0.1:8555', // Coverage launches its own ganache-cli client
