@@ -5,7 +5,7 @@ import main from './lib/main'
 const { BOX_ADDRESS = '' } = process.env
 
 main(async () => {
-  const Counter = await ethers.getContractFactory('Counter')
-  const box = await upgrades.upgradeProxy(BOX_ADDRESS, Counter)
+  const GuardianVault = await ethers.getContractFactory('GuardianVault')
+  const box = await upgrades.upgradeProxy(BOX_ADDRESS, GuardianVault)
   console.log('Box upgraded')
 })
