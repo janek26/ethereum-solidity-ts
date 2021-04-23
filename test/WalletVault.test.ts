@@ -5,6 +5,8 @@ import { ethers } from 'hardhat'
 import {
   ERC20Mock,
   ERC20Mock__factory,
+  InfraGuardianVault,
+  InfraGuardianVault__factory,
   WalletVault,
   WalletVault__factory,
 } from '../typechain'
@@ -16,17 +18,30 @@ describe('WalletVault', () => {
   const TOTAL_SUPPLY_20_1 = 1000
   let walletVault: WalletVault
   let erc20Mock1: ERC20Mock
+  let guardianVault: InfraGuardianVault
 
   beforeEach(async () => {
-    // deploy WalletVault
     const [owner] = await ethers.getSigners()
 
+    const GuardianVault = (await ethers.getContractFactory(
+      'InfraGuardianVault',
+      owner,
+    )) as InfraGuardianVault__factory
+
+    const tx = await GuardianVault.deploy()
+    guardianVault = await tx.deployed()
+
+    expect(guardianVault.address).to.properAddress
+
+    // deploy WalletVault
     const WalletVault = (await ethers.getContractFactory(
       'WalletVault',
       owner,
     )) as WalletVault__factory
 
-    walletVault = await (await WalletVault.deploy()).deployed()
+    walletVault = await (
+      await WalletVault.deploy(guardianVault.address, owner.address)
+    ).deployed()
 
     expect(walletVault.address).to.properAddress
 
