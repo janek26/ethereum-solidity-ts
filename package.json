@@ -1,34 +1,54 @@
 {
-  "name": "solidity-ts-dev-stack",
-  "version": "0.0.2",
+  "name": "ethereum-solidity-ts",
+  "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "build": "npm run clean && npm run compile",
-    "dev": "hardhat watch compile",
-    "clean": "hardhat clean",
-    "compile": "hardhat compile",
-    "test": "hardhat test",
-    "test:watch": "hardhat watch test",
-    "coverage": "npm run build && hardhat coverage --temp artifacts --network coverage",
-    "chain": "hardhat node",
-    "deploy": "hardhat run scripts/deploy.ts",
-    "format": "prettier --ignore-path .gitignore --write './**/*.{ts,sol,json,md,yml}'"
+  "homepage": "https://github.com/janek26/ethereum-solidity-ts#readme",
+  "bugs": {
+    "url": "https://github.com/janek26/ethereum-solidity-ts/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/janek26/solidity-ts-dev-stack.git"
+    "url": "git+https://github.com/janek26/ethereum-solidity-ts.git"
   },
-  "author": "janek26",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/janek26/solidity-ts-dev-stack/issues"
+  "author": "janek26",
+  "main": "index.js",
+  "scripts": {
+    "build": "yarn compile",
+    "chain": "hardhat node",
+    "compile": "hardhat compile",
+    "coverage": "yarn build && hardhat coverage --temp artifacts --network coverage",
+    "deploy:init": "hardhat run scripts/deploy.ts",
+    "deploy:upgrade": "hardhat run scripts/upgrade.ts",
+    "dev": "hardhat watch compile",
+    "format": "prettier --ignore-path .gitignore --write './**/*.{ts,sol,json,md,yml}'",
+    "hh": "hardhat",
+    "postinstall": "patch-package && yarn build",
+    "lint": "yarn lint:solhint && yarn lint:prettier",
+    "lint:prettier": "prettier --ignore-path .gitignore --check './**/*.{ts,sol,json,md,yml}'",
+    "lint:solhint": "hardhat check",
+    "precommit": "yarn lint && yarn test",
+    "test": "hardhat test",
+    "test:watch": "hardhat watch test"
   },
-  "homepage": "https://github.com/janek26/solidity-ts-dev-stack#readme",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "yarn test"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,sol,json,md,yml}": "prettier --write",
+    "*.sol": "solhint"
+  },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.1",
     "@nomiclabs/hardhat-etherscan": "^2.1.0",
+    "@nomiclabs/hardhat-solhint": "^2.0.0",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@openzeppelin/contracts": "^3.4.1",
+    "@openzeppelin/contracts-upgradeable": "^3.3.0",
+    "@openzeppelin/hardhat-upgrades": "^1.5.0",
     "@typechain/ethers-v5": "^5.0.0",
     "@types/chai": "^4.2.14",
     "@types/mocha": "^8.2.0",
@@ -40,26 +60,31 @@
     "hardhat": "^2.0.5",
     "hardhat-abi-exporter": "^2.0.8",
     "hardhat-gas-reporter": "^1.0.4",
+    "hardhat-log-remover": "^2.0.1",
+    "hardhat-tracer": "^1.0.0-alpha.3",
     "hardhat-typechain": "^0.3.4",
     "hardhat-watcher": "^2.0.0",
-    "husky": ">=4",
-    "lint-staged": ">=10",
+    "husky": "^4.3.8",
+    "import-sort-style-module": "^6.0.0",
+    "lint-staged": "^10.5.3",
+    "patch-package": "^6.4.7",
+    "postinstall-postinstall": "^2.1.0",
     "prettier": "^2.2.1",
+    "prettier-plugin-import-sort": "^0.0.6",
+    "prettier-plugin-packagejson": "^2.2.9",
     "prettier-plugin-solidity": "^1.0.0-beta.3",
-    "solidity-coverage": "^0.7.14",
+    "solc": "^0.7.6",
+    "solhint-plugin-prettier": "^0.0.5",
+    "solidity-coverage": "^0.7.16",
     "ts-generator": "^0.1.1",
     "ts-node": "^9.1.1",
     "typechain": "^4.0.1",
     "typescript": "^4.1.3"
   },
-  "dependencies": {},
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "yarn test"
+  "importSort": {
+    ".js, .jsx, .ts, .tsx": {
+      "style": "module",
+      "parser": "typescript"
     }
-  },
-  "lint-staged": {
-    "*.{ts,sol,json,md,yml}": "prettier --write"
   }
 }

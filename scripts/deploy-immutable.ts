@@ -1,4 +1,4 @@
-import { ethers, upgrades } from 'hardhat'
+import { ethers } from 'hardhat'
 
 import main from './lib/main'
 
@@ -10,8 +10,8 @@ main(async () => {
       ethers.utils.formatEther(await deployer.getBalance()) +
       ' ETH',
   )
-  const GuardianVault = await ethers.getContractFactory('GuardianVault')
-  const guardianVault = await upgrades.deployProxy(GuardianVault, [[]])
+  const GuardianVault = await ethers.getContractFactory('InfraGuardianVault')
+  const guardianVault = await GuardianVault.deploy()
   await guardianVault.deployed()
   console.log('Box deployed to:', guardianVault.address)
 })

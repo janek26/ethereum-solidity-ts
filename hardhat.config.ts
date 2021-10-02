@@ -1,15 +1,19 @@
-import { config as dotEnvConfig } from 'dotenv'
-dotEnvConfig()
-
-import { HardhatUserConfig } from 'hardhat/types'
-
 import '@nomiclabs/hardhat-waffle'
 import 'hardhat-typechain'
 import '@nomiclabs/hardhat-etherscan'
 import 'solidity-coverage'
 import 'hardhat-watcher'
+import 'hardhat-tracer'
 import 'hardhat-gas-reporter'
 import 'hardhat-abi-exporter'
+import 'hardhat-log-remover'
+import '@nomiclabs/hardhat-solhint'
+import '@openzeppelin/hardhat-upgrades'
+
+import { config as dotEnvConfig } from 'dotenv'
+import { HardhatUserConfig } from 'hardhat/types'
+
+dotEnvConfig()
 
 const INFURA_API_KEY = process.env.INFURA_API_KEY || ''
 const RINKEBY_PRIVATE_KEY =
@@ -21,14 +25,43 @@ const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY
 const config: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
   solidity: {
-    compilers: [{ version: '0.6.8', settings: {} }],
+    compilers: [
+      {
+        version: '0.7.6',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+    ],
   },
   networks: {
     hardhat: {},
-    localhost: {},
+    localhost: {
+      url: 'http://127.0.0.1:7545',
+    },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [RINKEBY_PRIVATE_KEY],
+    },
+    cevm: {
+      url: `https://rpc-evm.portal.dev.cardano.org/`,
+      accounts: [RINKEBY_PRIVATE_KEY],
+    },
+    kevm: {
+      url: `https://rpc-kevm.portal.dev.cardano.org/`,
+      accounts: [RINKEBY_PRIVATE_KEY],
+    },
+    moonbase: {
+      url: `https://rpc.testnet.moonbeam.network`,
+      chainId: 1287,
+      accounts: [RINKEBY_PRIVATE_KEY],
+    },
+    moondev: {
+      url: `http://127.0.0.1:9933`,
+      chainId: 1281,
     },
     coverage: {
       url: 'http://127.0.0.1:8555', // Coverage launches its own ganache-cli client

@@ -45,16 +45,17 @@ Notes:
 
 `yarn coverage`
 
-Notes:
-
-- running a coverage report currently deletes artifacts, so after each coverage run you will then need to run `npx buidler clean` followed by `yarn build` before re-running tests
-- the branch coverage is 75%
-
 ### Deploy to Ethereum
 
 Create/modify network config in `hardhat.config.ts` and add API key and private key, then run:
 
-`yarn deploy --network rinkeby`
+`yarn deploy:init --network rinkeby`
+
+### Upgrade Contract
+
+To upgrade your contract, set `BOX_ADDRESS` in `.env` to your proxy contract, then run:
+
+`yarn deploy:upgrade --network rinkeby`
 
 ### Verify on Etherscan
 
