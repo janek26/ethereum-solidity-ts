@@ -560,13 +560,33 @@ describe('InfraGuardianVault', () => {
         )
         expect(isApproved).to.eq(false)
       })
+      it('fails when somebody other than the guardian tries to approve', async () => {
+        const [ward, g1, g2] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [g1.address, g2.address], [])
+
+        const ACTION_HASH = ethers.utils.keccak256(ethers.utils.randomBytes(8))
+
+        expect(
+          guardianVault
+            .connect(g1)
+            .approve(g2.address, ward.address, ACTION_HASH),
+        ).to.revertedWith('Sender not target')
+
+        const isApproved = await guardianVault.isApproved(
+          ward.address,
+          ACTION_HASH,
+        )
+        expect(isApproved).to.eq(false)
+      })
       it('is true if 1/1', async () => {
         const [ward, g1] = await ethers.getSigners()
         await guardianVault.register(ward.address, [g1.address], [])
 
         const ACTION_HASH = ethers.utils.keccak256(ethers.utils.randomBytes(8))
 
-        await guardianVault.approve(g1.address, ward.address, ACTION_HASH)
+        await guardianVault
+          .connect(g1)
+          .approve(g1.address, ward.address, ACTION_HASH)
 
         const isApproved = await guardianVault.isApproved(
           ward.address,
@@ -580,7 +600,9 @@ describe('InfraGuardianVault', () => {
 
         const ACTION_HASH = ethers.utils.keccak256(ethers.utils.randomBytes(8))
 
-        await guardianVault.approve(g1.address, ward.address, ACTION_HASH)
+        await guardianVault
+          .connect(g1)
+          .approve(g1.address, ward.address, ACTION_HASH)
 
         const isApproved = await guardianVault.isApproved(
           ward.address,
@@ -598,7 +620,9 @@ describe('InfraGuardianVault', () => {
 
         const ACTION_HASH = ethers.utils.keccak256(ethers.utils.randomBytes(8))
 
-        await guardianVault.approve(g1.address, ward.address, ACTION_HASH)
+        await guardianVault
+          .connect(g1)
+          .approve(g1.address, ward.address, ACTION_HASH)
 
         const isApproved = await guardianVault.isApproved(
           ward.address,
@@ -616,14 +640,92 @@ describe('InfraGuardianVault', () => {
 
         const ACTION_HASH = ethers.utils.keccak256(ethers.utils.randomBytes(8))
 
-        await guardianVault.approve(g1.address, ward.address, ACTION_HASH)
-        await guardianVault.approve(g2.address, ward.address, ACTION_HASH)
+        await guardianVault
+          .connect(g1)
+          .approve(g1.address, ward.address, ACTION_HASH)
+        await guardianVault
+          .connect(g2)
+          .approve(g2.address, ward.address, ACTION_HASH)
 
         const isApproved = await guardianVault.isApproved(
           ward.address,
           ACTION_HASH,
         )
         expect(isApproved).to.eq(true)
+      })
+      it('is false if 1/4', async () => {
+        const [ward, g1, g2, g3, g4] = await ethers.getSigners()
+        await guardianVault.register(
+          ward.address,
+          [g1.address, g2.address, g3.address, g4.address],
+          [],
+        )
+
+        const ACTION_HASH = ethers.utils.keccak256(ethers.utils.randomBytes(8))
+
+        await guardianVault
+          .connect(g1)
+          .approve(g1.address, ward.address, ACTION_HASH)
+
+        const isApproved = await guardianVault.isApproved(
+          ward.address,
+          ACTION_HASH,
+        )
+        expect(isApproved).to.eq(false)
+      })
+      it('is true if 2/4', async () => {
+        const [ward, g1, g2, g3, g4] = await ethers.getSigners()
+        await guardianVault.register(
+          ward.address,
+          [g1.address, g2.address, g3.address, g4.address],
+          [],
+        )
+
+        const ACTION_HASH = ethers.utils.keccak256(ethers.utils.randomBytes(8))
+
+        await guardianVault
+          .connect(g1)
+          .approve(g1.address, ward.address, ACTION_HASH)
+        await guardianVault
+          .connect(g2)
+          .approve(g2.address, ward.address, ACTION_HASH)
+
+        const isApproved = await guardianVault.isApproved(
+          ward.address,
+          ACTION_HASH,
+        )
+        expect(isApproved).to.eq(true)
+      })
+      it('is false if 2/4 but one guardian was removed during process, so it is 1/3', async () => {
+        const [ward, g1, g2, g3, g4] = await ethers.getSigners()
+        await guardianVault.register(
+          ward.address,
+          [g1.address, g2.address, g3.address, g4.address],
+          [],
+        )
+
+        const ACTION_HASH = ethers.utils.keccak256(ethers.utils.randomBytes(8))
+
+        await guardianVault
+          .connect(g1)
+          .approve(g1.address, ward.address, ACTION_HASH)
+        await guardianVault
+          .connect(g2)
+          .approve(g2.address, ward.address, ACTION_HASH)
+
+        const isApproved1 = await guardianVault.isApproved(
+          ward.address,
+          ACTION_HASH,
+        )
+        expect(isApproved1).to.eq(true)
+
+        await guardianVault.removeGuardian(ward.address, g1.address)
+
+        const isApproved2 = await guardianVault.isApproved(
+          ward.address,
+          ACTION_HASH,
+        )
+        expect(isApproved2).to.eq(false)
       })
     })
   })

@@ -327,7 +327,11 @@ contract InfraGuardianVault is Context {
     address _guardianAddress,
     address _wardAddress,
     bytes32 _hash
-  ) public onlyAllowWardState(_wardAddress, WardStates.Active) {
+  )
+    public
+    onlyAllowWardState(_wardAddress, WardStates.Active)
+    onlyBy(_guardianAddress)
+  {
     WardDetails storage _ward = _getWard(_wardAddress);
     _ward.approvedActions[_hash].push(_guardianAddress);
   }

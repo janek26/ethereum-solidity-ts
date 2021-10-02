@@ -133,6 +133,19 @@ describe('WalletVault', () => {
       console.log('Owner: ', ethers.utils.formatEther(ownerBalanceAfter))
       console.log('Vault: ', ethers.utils.formatEther(walletVaultBalanceAfter))
     })
+
+    it('can blocks sent Ether by unknown', async () => {
+      const ETHER_TO_TRANSFER = ethers.utils.parseEther('1')
+      const [owner, unknown] = await ethers.getSigners()
+
+      // sent ether
+
+      expect(
+        walletVault
+          .connect(unknown)
+          .invoke(owner.address, ETHER_TO_TRANSFER, []),
+      ).to.revertedWith('Sender not trusted')
+    })
   })
 
   describe('ERC20', () => {
@@ -186,6 +199,26 @@ describe('WalletVault', () => {
       console.log('')
       console.log('Owner: ', ownerBalanceAfter.toString())
       console.log('Vault: ', walletVaultBalanceAfter.toString())
+    })
+
+    it('can blocks sent ERC20 by unknown', async () => {
+      const AMOUNT_TO_TRANSFER = 1
+      const [owner, unknown] = await ethers.getSigners()
+
+      // sent ether
+
+      expect(
+        walletVault
+          .connect(unknown)
+          .invoke(
+            erc20Mock1.address,
+            0,
+            erc20Mock1.interface.encodeFunctionData('transfer', [
+              owner.address,
+              AMOUNT_TO_TRANSFER,
+            ]),
+          ),
+      ).to.revertedWith('Sender not trusted')
     })
   })
 })
