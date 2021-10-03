@@ -51,14 +51,16 @@ describe('InfraGuardianVault', () => {
       )
       expect(guardiansLength).to.eq(GUARDIANS.length)
     })
-    it('denies registration without guardian', async () => {
+    it('allows registration without guardians', async () => {
       const [owner] = await ethers.getSigners()
       const GUARDIANS: string[] = []
 
-      rejects(
-        guardianVault.register(owner.address, GUARDIANS, []),
-        'Ward needs at least one Guardian',
+      await guardianVault.register(owner.address, GUARDIANS, [])
+
+      const guardiansLength = await guardianVault.getGuardianLength(
+        owner.address,
       )
+      expect(guardiansLength).to.eq(GUARDIANS.length)
     })
     it('denies registration for other address', async () => {
       const [_evil, g1, target] = await ethers.getSigners()
@@ -551,6 +553,18 @@ describe('InfraGuardianVault', () => {
       it('defaults to false', async () => {
         const [ward, g1] = await ethers.getSigners()
         await guardianVault.register(ward.address, [g1.address], [])
+
+        const ACTION_HASH = ethers.utils.keccak256(ethers.utils.randomBytes(8))
+
+        const isApproved = await guardianVault.isApproved(
+          ward.address,
+          ACTION_HASH,
+        )
+        expect(isApproved).to.eq(false)
+      })
+      it('defaults to false without guardians', async () => {
+        const [ward] = await ethers.getSigners()
+        await guardianVault.register(ward.address, [], [])
 
         const ACTION_HASH = ethers.utils.keccak256(ethers.utils.randomBytes(8))
 

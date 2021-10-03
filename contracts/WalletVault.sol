@@ -20,9 +20,10 @@ contract WalletVault is Context {
 
   constructor(InfraGuardianVault _gv, address _owner) {
     gv = _gv;
+    address[] memory guardians = new address[](0);
     address[] memory trusted = new address[](1);
     trusted[0] = _owner;
-    _gv.register(address(this), trusted, trusted);
+    _gv.register(address(this), guardians, trusted);
   }
 
   modifier onlyTrusted(address _suspect) {

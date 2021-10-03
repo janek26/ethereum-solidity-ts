@@ -198,8 +198,6 @@ contract InfraGuardianVault is Context {
   ) public onlyBy(_suspect) onlyAllowWardState(_suspect, WardStates.None) {
     WardDetails storage _ward = _getWardUnsafe(_suspect);
 
-    require(_guardians.length > 0, 'Ward needs at least one Guardian');
-
     _ward.state = WardStates.Active;
     _ward.timelockPeriod = 1 days;
     _ward.guardiansLength = _guardians.length;
@@ -299,6 +297,7 @@ contract InfraGuardianVault is Context {
     address[] storage _approvals,
     uint256 _total
   ) internal view returns (bool) {
+    if (_total == 0) return false;
     uint256 _validApprovals = 0;
 
     for (uint256 i = 0; i < _approvals.length; i++) {

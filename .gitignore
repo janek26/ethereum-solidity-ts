@@ -7,3 +7,4 @@ abi/
 .openzeppelin/
 coverage*
 .env
+.DS_Store

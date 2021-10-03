@@ -38,6 +38,9 @@ describe('WalletVault', () => {
     factory = await (await Factory.deploy()).deployed()
 
     expect(factory.address).to.properAddress
+
+    console.log('xxx GuardianVault', guardianVault.address)
+    console.log('xxx Factory', factory.address)
   })
 
   describe('Can calc addresses', () => {

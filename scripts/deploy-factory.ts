@@ -10,8 +10,8 @@ main(async () => {
       ethers.utils.formatEther(await deployer.getBalance()) +
       ' ETH',
   )
-  const GuardianVault = await ethers.getContractFactory('InfraGuardianVault')
-  const guardianVault = await GuardianVault.deploy()
-  await guardianVault.deployed()
-  console.log('GuardianVault deployed to:', guardianVault.address)
+  const Factory = await ethers.getContractFactory('Factory')
+  const factory = await Factory.deploy()
+  await factory.deployed()
+  console.log('Factory deployed to:', factory.address)
 })
